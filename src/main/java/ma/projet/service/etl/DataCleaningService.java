@@ -19,12 +19,12 @@ public class DataCleaningService {
 
     // 2. Nettoyage du KILOMÉTRAGE
     public int nettoyerKilometrage(String kmBrut) {
-        if (kmBrut == null || kmBrut.isEmpty()) return 150000; // Default average
+        if (kmBrut == null || kmBrut.isEmpty()) return 150000;
         String clean = kmBrut.toLowerCase().trim();
 
         if (clean.contains("plus de")) return 500000;
 
-        // Handle range "35 000 - 39 999"
+        // Gestion de la plage (ex: "12000 - 20200") -> Moyenne locale
         if (clean.contains("-")) {
             try {
                 String[] parts = clean.split("-");
@@ -43,18 +43,17 @@ public class DataCleaningService {
 
         try {
             long val = Long.parseLong(digitsOnly);
-            if (val < 1000 && val > 0) return (int) val * 1000; // Fix short inputs like "150"
+            if (val < 1000 && val > 0) return (int) val * 1000;
             return (int) val;
         } catch (Exception e) {
             return 150000;
         }
     }
 
-    // 3. Nettoyage de l'ANNÉE (Missing Method)
+    // 3. Nettoyage de l'ANNÉE
     public int nettoyerAnnee(String anneeBrut) {
         if (anneeBrut == null) return 2015;
         try {
-            // Extract first 4 digits found
             Pattern p = Pattern.compile("(19|20)\\d{2}");
             Matcher m = p.matcher(anneeBrut);
             if (m.find()) {
@@ -62,13 +61,13 @@ public class DataCleaningService {
             }
             return Integer.parseInt(anneeBrut.trim());
         } catch (Exception e) {
-            return 2015; // Default fallback
+            return 2015;
         }
     }
 
-    // 4. Normalisation Texte (Missing Method)
+    // 4. Normalisation Texte
     public String normaliserTexte(String texte) {
-        if (texte == null) return "N/A";
-        return texte.trim().toUpperCase().replaceAll(";", ","); // remove CSV delimiters from content
+        if (texte == null || texte.trim().isEmpty()) return "N/A";
+        return texte.trim().toUpperCase().replaceAll(";", ",");
     }
 }
