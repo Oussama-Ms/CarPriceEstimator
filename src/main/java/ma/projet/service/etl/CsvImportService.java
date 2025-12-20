@@ -25,6 +25,10 @@ public class CsvImportService {
             System.out.println("❌ Aucun fichier CSV trouvé.");
             return;
         }
+        // --- Empty the database before importing ---
+        System.out.println("🔄 Réinitialisation de la base de données...");
+        dao.truncate();
+        // -------------------------------------------------------
 
         System.out.println("\nFICHIER                               | LUS        | GARDÉS     | IGNORÉS    | STATUS");
         System.out.println("--------------------------------------|------------|------------|------------|---------");
