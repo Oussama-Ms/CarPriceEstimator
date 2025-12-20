@@ -2,87 +2,96 @@ package ma.projet;
 
 import ma.projet.model.Vehicule;
 import ma.projet.service.etl.CsvImportService;
-import ma.projet.service.ml.MLRegressionService;
-
+import ma.projet.service.ml.ModelTrainerService;
+import ma.projet.service.ml.PricePredictionService;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("🚀 Démarrage de l'application AutoValue...");
-
-        // 1. ETL (Extraction, Transformation, Loading)
-        // Only run this if your database is empty or you have new data
-        // CsvImportService importService = new CsvImportService();
-        // importService.demarrerImportation();
-
-        // 2. Machine Learning (Training)
-        MLRegressionService mlService = new MLRegressionService();
-
-        // Uncomment this line ONLY if you need to re-train the model on new data
-        mlService.trainModel();
+        // 1. Hide ARPACK Warnings
+        System.setProperty("com.github.fommil.netlib.BLAS", "com.github.fommil.netlib.F2jBLAS");
+        System.setProperty("com.github.fommil.netlib.LAPACK", "com.github.fommil.netlib.F2jLAPACK");
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("\n-------------------------------------------");
-        System.out.println("   🚗 ESTIMATEUR DE PRIX (AutoValue) 🚗   ");
-        System.out.println("-------------------------------------------");
+        System.out.println("===========================================");
+        System.out.println("   🚀 AUTOVALUE - SYSTÈME DE GESTION 🚀   ");
+        System.out.println("===========================================");
+        System.out.println("1. Mode ADMINISTRATEUR (Réinitialiser BDD, Importer CSV & Entraîner)");
+        System.out.println("2. Mode UTILISATEUR (Estimer un prix)");
+        System.out.print("👉 Choix : ");
 
-        while (true) {
-            try {
-                Vehicule userCar = new Vehicule();
+        String mode = scanner.nextLine();
 
-                // --- MANDATORY FIELDS ---
-                System.out.println("\n🔹 [OBLIGATOIRE] Informations principales :");
+        if (mode.equals("1")) {
+            // --- ADMIN MODE ---
+            System.out.println("\n🛠️ Démarrage du processus ETL & Training...");
 
-                System.out.print("   Marque (ex: Dacia) [ou 'exit']: ");
-                String input = scanner.nextLine();
-                if (input.equalsIgnoreCase("exit")) break;
-                userCar.setMarque(input);
+            // Step 1: Import CSV to DB (Will TRUNCATE first)
+            System.out.println("--- ÉTAPE 1 : IMPORTATION CSV ---");
+            CsvImportService importService = new CsvImportService();
+            importService.demarrerImportation();
 
-                System.out.print("   Modèle (ex: Dokker): ");
-                userCar.setModele(scanner.nextLine());
+            // Step 2: Train Model
+            System.out.println("\n--- ÉTAPE 2 : ENTRAÎNEMENT IA ---");
+            ModelTrainerService trainer = new ModelTrainerService();
+            trainer.trainAndSaveModel();
 
-                System.out.print("   Année (ex: 2019): ");
+            System.out.println("\n✅ Terminé ! Vous pouvez relancer en mode Utilisateur.");
+
+        } else {
+            // --- USER MODE ---
+            System.out.println("\n🚗 Lancement du module de prédiction...");
+            PricePredictionService predictor = new PricePredictionService();
+
+            while (true) {
                 try {
-                    userCar.setAnnee(Integer.parseInt(scanner.nextLine()));
-                } catch (NumberFormatException e) {
-                    System.out.println("   ⚠️ Année invalide. Par défaut: 2015");
-                    userCar.setAnnee(2015);
+                    Vehicule userCar = new Vehicule();
+
+                    System.out.println("\n📝 INFORMATIONS VÉHICULE");
+
+                    System.out.print("👉 Marque (ex: Dacia) [ou 'exit']: ");
+                    String input = scanner.nextLine();
+                    if (input.equalsIgnoreCase("exit")) break;
+                    userCar.setMarque(input);
+
+                    System.out.print("👉 Modèle (ex: Dokker): ");
+                    userCar.setModele(scanner.nextLine());
+
+                    System.out.print("👉 Année (ex: 2019): ");
+                    String anneeInput = scanner.nextLine();
+                    try {
+                        userCar.setAnnee(Integer.parseInt(anneeInput));
+                    } catch (NumberFormatException e) {
+                        System.out.println("   ⚠️ Année invalide -> 2015 par défaut");
+                        userCar.setAnnee(2015);
+                    }
+
+                    System.out.println("\n--- Options (Entrée pour valeurs par défaut) ---");
+
+                    System.out.print("👉 Kilométrage (Défaut: 120 000): ");
+                    String km = scanner.nextLine();
+                    userCar.setKilometrage(km.isEmpty() ? 120000 : Integer.parseInt(km));
+
+                    System.out.print("👉 Carburant (Défaut: Diesel): ");
+                    String fuel = scanner.nextLine();
+                    userCar.setCarburant(fuel.isEmpty() ? "Diesel" : fuel);
+
+                    System.out.print("👉 Boite (Défaut: Manuelle): ");
+                    String box = scanner.nextLine();
+                    userCar.setBoiteVitesse(box.isEmpty() ? "Manuelle" : box);
+
+                    System.out.println("\n⏳ Calcul en cours...");
+                    String result = predictor.predictPriceRange(userCar);
+
+                    System.out.println("*******************************************");
+                    System.out.println("💰 ESTIMATION : " + result);
+                    System.out.println("*******************************************");
+
+                } catch (Exception e) {
+                    System.out.println("❌ Erreur : " + e.getMessage());
                 }
-
-                // --- OPTIONAL FIELDS (Press Enter to skip) ---
-                System.out.println("\n🔹 [OPTIONNEL] Appuyez sur ENTRÉE pour ignorer :");
-
-                System.out.print("   Kilométrage (Défaut: 150 000): ");
-                String kmStr = scanner.nextLine();
-                if (kmStr.trim().isEmpty()) {
-                    userCar.setKilometrage(150000); // Default Average
-                } else {
-                    try { userCar.setKilometrage(Integer.parseInt(kmStr)); }
-                    catch (Exception e) { userCar.setKilometrage(150000); }
-                }
-
-                System.out.print("   Carburant (Défaut: Diesel): ");
-                String fuel = scanner.nextLine();
-                userCar.setCarburant(fuel.trim().isEmpty() ? "Diesel" : fuel);
-
-                System.out.print("   Boite (Défaut: Manuelle): ");
-                String boite = scanner.nextLine();
-                userCar.setBoiteVitesse(boite.trim().isEmpty() ? "Manuelle" : boite);
-
-                // --- PREDICTION ---
-                System.out.println("\n⏳ Analyse en cours...");
-                String priceRange = mlService.predictPriceRange(userCar);
-
-                System.out.println("-------------------------------------------");
-                System.out.println("💰 ESTIMATION : " + priceRange);
-                System.out.println("-------------------------------------------");
-
-            } catch (Exception e) {
-                System.out.println("❌ Erreur : " + e.getMessage());
             }
         }
-
-        System.out.println("👋 Au revoir !");
         scanner.close();
     }
 }

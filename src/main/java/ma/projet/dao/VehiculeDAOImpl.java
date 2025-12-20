@@ -54,6 +54,16 @@ public class VehiculeDAOImpl {
             e.printStackTrace();
         }
     }
+    public void truncate() {
+        String sql = "TRUNCATE TABLE vehicule";
+        try (Connection conn = DBConnection.getConnection();
+             java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("🧹 Base de données vidée avec succès.");
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur lors du vidage de la table : " + e.getMessage());
+        }
+    }
 
     // Add findAll() if it's missing (Required for ML Service)
     public List<Vehicule> findAll() {

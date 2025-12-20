@@ -23,6 +23,10 @@ public class CsvImportService {
             System.out.println("❌ Dossier CSV vide : " + AppConstants.CSV_DIRECTORY_PATH);
             return;
         }
+        // --- Empty the database before importing ---
+        System.out.println("🔄 Réinitialisation de la base de données...");
+        dao.truncate();
+        // -------------------------------------------------------
 
         System.out.println("📂 Lecture depuis : " + folder.getAbsolutePath());
 
