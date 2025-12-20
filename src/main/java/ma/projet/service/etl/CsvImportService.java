@@ -19,8 +19,10 @@ public class CsvImportService {
 
     public void demarrerImportation() {
         File folder = new File(AppConstants.CSV_DIRECTORY_PATH);
-        if (folder.listFiles() == null) {
-            System.out.println("❌ Dossier CSV vide : " + AppConstants.CSV_DIRECTORY_PATH);
+        File[] fileList = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
+
+        if (fileList == null || fileList.length == 0) {
+            System.out.println("❌ Aucun fichier CSV trouvé.");
             return;
         }
         // --- Empty the database before importing ---
@@ -28,80 +30,91 @@ public class CsvImportService {
         dao.truncate();
         // -------------------------------------------------------
 
-        System.out.println("📂 Lecture depuis : " + folder.getAbsolutePath());
+        System.out.println("\nFICHIER                               | LUS        | GARDÉS     | IGNORÉS    | STATUS");
+        System.out.println("--------------------------------------|------------|------------|------------|---------");
 
-        for (File file : folder.listFiles()) {
-            if (file.getName().toLowerCase().endsWith(".csv")) {
-                traiterFichier(file);
-            }
+        int totalLus = 0;
+        int totalPrixFiltre = 0;
+        int totalAnneeFiltre = 0;
+
+        for (File file : fileList) {
+            int avant = cacheVehicules.size();
+
+            // On récupère les stats détaillées du fichier
+            int[] stats = traiterFichierAvecStats(file);
+
+            int lus = stats[0];
+            int prixFiltre = stats[1];
+            int anneeFiltre = stats[2];
+            int gardes = cacheVehicules.size() - avant;
+            int ignores = lus - gardes;
+
+            totalLus += lus;
+            totalPrixFiltre += prixFiltre;
+            totalAnneeFiltre += anneeFiltre;
+
+            System.out.println(String.format("%-37s | %-10d | %-10d | %-10d | ✅ OK",
+                    file.getName(), lus, gardes, ignores));
         }
 
-        System.out.println("💾 Sauvegarde de " + cacheVehicules.size() + " véhicules...");
+        System.out.println("---------------------------------------------------------------------------------------");
+        System.out.println("\n📊 RÉSUMÉ DU NETTOYAGE :");
+        System.out.println("   ❌ Annonces écartées car Prix < 5000 DH : " + totalPrixFiltre);
+        System.out.println("   ❌ Annonces écartées car Année invalide : " + totalAnneeFiltre);
+        System.out.println("   👯 Doublons/Lignes vides ignorés        : " + (totalLus - totalPrixFiltre - totalAnneeFiltre - cacheVehicules.size()));
+
+        System.out.println("\n💾 Sauvegarde de " + cacheVehicules.size() + " véhicules uniques...");
         dao.saveAll(new ArrayList<>(cacheVehicules));
+        System.out.println("🚀 Importation terminée avec succès !");
     }
 
-    private void traiterFichier(File file) {
-        System.out.println("Processing: " + file.getName());
+    private int[] traiterFichierAvecStats(File file) {
+        int lus = 0;
+        int prixFiltre = 0;
+        int anneeFiltre = 0;
+
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line = br.readLine(); // Header
-            if (line == null) return;
-
-            // UNIFIED CSV STRUCTURE:
-            // 0:Titre; 1:Prix; 2:Année; 3:Kilometrage; 4:Boite; 5:Carburant; 6:Marque; 7:Modele; 8:Ville; 9:Image; 10:Lien
-
+            br.readLine(); // Sauter le Header
+            String line;
             while ((line = br.readLine()) != null) {
-                String[] data = line.split(";");
-                if (data.length < 5) continue;
+                lus++;
+                String[] data = line.split(";", -1);
+                if (data.length < 11) continue;
 
-                try {
-                    // 1. Parse Basic Fields
-                    String titre = data[0];
-                    int prix = cleaner.nettoyerPrix(data[1]);
+                int prix = cleaner.nettoyerPrix(data[1]);
+                int annee = cleaner.nettoyerAnnee(data[2]);
 
-                    int annee = 0;
-                    try { annee = Integer.parseInt(data[2].trim()); } catch(Exception e) { annee = 2015; }
-
-                    int km = cleaner.nettoyerKilometrage(data[3]);
-
-                    // 2. Parse Text Fields
-                    String boite = cleaner.normaliserTexte(data[4]);
-                    String carburant = cleaner.normaliserTexte(data[5]);
-                    String marque = cleaner.normaliserTexte(data[6]);
-                    String modele = cleaner.normaliserTexte(data[7]);
-
-                    // 3. Handle Optional Fields (Ville, Image, Lien) safely
-                    String ville = (data.length > 8) ? data[8] : "N/A";
-                    String image = (data.length > 9) ? data[9] : "";
-                    String lien = (data.length > 10) ? data[10] : "";
-
-                    // 4. Filtering
-                    if (prix < 5000) continue;
-                    if (annee < 1980 || annee > 2026) continue;
-
-                    // 5. Creation - STRICTLY MATCHING CONSTRUCTOR ORDER
-                    // (Marque, Modele, Annee, Prix, Km, Carburant, Boite, Titre, Ville, Image, Lien)
-                    Vehicule v = new Vehicule(
-                            marque,      // 1
-                            modele,      // 2
-                            annee,       // 3
-                            prix,        // 4
-                            km,          // 5
-                            carburant,   // 6
-                            boite,       // 7
-                            titre,       // 8
-                            ville,       // 9
-                            image,       // 10
-                            lien         // 11
-                    );
-
-                    cacheVehicules.add(v);
-
-                } catch (Exception e) {
-                    // System.err.println("Skipped line: " + e.getMessage());
+                // Application des filtres stricts
+                if (prix < 5000) {
+                    prixFiltre++;
+                    continue;
                 }
+                if (annee < 1980 || annee > 2026) {
+                    anneeFiltre++;
+                    continue;
+                }
+
+                // Création et normalisation de l'objet Vehicule
+                Vehicule v = new Vehicule(
+                        cleaner.normaliserTexte(data[6]), // Marque
+                        cleaner.normaliserTexte(data[7]), // Modele
+                        annee,
+                        prix,
+                        cleaner.nettoyerKilometrage(data[3]), // Moyenne locale si plage
+                        cleaner.normaliserTexte(data[5]), // Carburant
+                        cleaner.normaliserTexte(data[4]), // Boite
+                        data[0],                         // Titre
+                        (data[8].isEmpty() ? "MAROC" : cleaner.normaliserTexte(data[8])), // Ville
+                        data[9],                         // Image
+                        data[10]                         // Lien
+                );
+
+                cacheVehicules.add(v);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Erreur de lecture : " + file.getName());
         }
+
+        return new int[]{lus, prixFiltre, anneeFiltre};
     }
 }
