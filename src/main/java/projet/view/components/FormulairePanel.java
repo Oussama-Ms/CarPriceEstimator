@@ -37,16 +37,20 @@ public class FormulairePanel extends AbstractView {
         headerPanel.setBounds(0, 0, 500, 100);
         headerPanel.setLayout(null);
 
-        JLabel lblTitle = new JLabel("AUTOVALUE");
+        // MODIFICATION ICI : Centrage du Titre
+        JLabel lblTitle = new JLabel("AUTOVALUE", SwingConstants.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 36));
         lblTitle.setForeground(Color.WHITE);
-        lblTitle.setBounds(40, 25, 300, 45);
+        // x=0 et width=500 pour prendre toute la largeur et bien centrer
+        lblTitle.setBounds(0, 25, 500, 45);
         headerPanel.add(lblTitle);
 
-        JLabel lblSubtitle = new JLabel("AI Price Estimator Pro");
+        // MODIFICATION ICI : Centrage du Sous-titre
+        JLabel lblSubtitle = new JLabel("AI Cars Price Estimator", SwingConstants.CENTER);
         lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblSubtitle.setForeground(new Color(100, 200, 255));
-        lblSubtitle.setBounds(42, 65, 250, 20);
+        // x=0 et width=500 pour prendre toute la largeur
+        lblSubtitle.setBounds(0, 65, 500, 20);
         headerPanel.add(lblSubtitle);
 
         this.add(headerPanel);

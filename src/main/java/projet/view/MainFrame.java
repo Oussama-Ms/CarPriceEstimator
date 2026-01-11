@@ -9,7 +9,7 @@ public class MainFrame extends JFrame {
     private FormulairePanel formPanel;
 
     public MainFrame() {
-        setTitle("AutoValue - AI Price Estimator");
+        setTitle("AutoValue - AI Cars Price Estimator");
         setSize(500, 800); // Augmenté légèrement pour le nouveau design
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
