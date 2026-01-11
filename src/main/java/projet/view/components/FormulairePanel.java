@@ -7,13 +7,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D; // Import ajouté pour Rectangle2D
+import java.awt.geom.Rectangle2D;
+import java.util.Calendar;
 
 public class FormulairePanel extends AbstractView {
 
     // Composants de l'UI
-    private JComboBox<String> cbMarque, cbModele, cbCarburant, cbBoite;
-    private JSpinner spAnnee;
+    private JComboBox<String> cbMarque, cbModele, cbCarburant, cbBoite, cbAnnee; // cbAnnee remplace spAnnee
     private JTextField txtKm;
     private JLabel lblResultat;
     private JButton btnEstimer;
@@ -39,8 +39,8 @@ public class FormulairePanel extends AbstractView {
         lblTitle.setBounds(40, 30, 300, 40);
         headerPanel.add(lblTitle);
 
-        // Sous-titre avec icône
-        JLabel lblSubtitle = new JLabel("⚡ AI Price Estimator");
+        // Sous-titre (Emojis retirés pour éviter les glitchs d'affichage)
+        JLabel lblSubtitle = new JLabel("AI Price Estimator");
         lblSubtitle.setFont(FONT_SUBTITLE);
         lblSubtitle.setForeground(SECONDARY_COLOR);
         lblSubtitle.setBounds(42, 70, 250, 25);
@@ -55,24 +55,38 @@ public class FormulairePanel extends AbstractView {
         cardPanel.setBorder(new EmptyBorder(25, 25, 25, 25));
 
         // Initialisation des champs
+
+        // 1. MARQUE
         String[] marques = {"DACIA", "RENAULT", "PEUGEOT", "VOLKSWAGEN", "HYUNDAI", "TOYOTA", "MERCEDES-BENZ", "BMW"};
         cbMarque = createModernCombo(marques);
-        addFormGroup(cardPanel, "🚗 MARQUE", cbMarque);
+        addFormGroup(cardPanel, "MARQUE", cbMarque);
 
+        // 2. MODÈLE
         cbModele = createModernCombo(new String[]{});
-        addFormGroup(cardPanel, "MODÈLE", cbModele);
+        addFormGroup(cardPanel, "MODELE", cbModele);
 
-        spAnnee = createModernSpinner();
-        addFormGroup(cardPanel, "📅 ANNÉE", spAnnee);
+        // 3. ANNÉE (Remplacé par ComboBox pour le style)
+        // Génération dynamique des années (Année en cours -> 1990)
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        int startYear = 1990;
+        String[] annees = new String[currentYear - startYear + 1];
+        for (int i = 0; i < annees.length; i++) {
+            annees[i] = String.valueOf(currentYear - i);
+        }
+        cbAnnee = createModernCombo(annees);
+        addFormGroup(cardPanel, "ANNEE", cbAnnee);
 
-        cbCarburant = createModernCombo(new String[]{"DIESEL", "ESSENCE", "HYBRIDE", "ÉLECTRIQUE"});
-        addFormGroup(cardPanel, "⛽ CARBURANT", cbCarburant);
+        // 4. CARBURANT
+        cbCarburant = createModernCombo(new String[]{"DIESEL", "ESSENCE", "HYBRIDE", "ELECTRIQUE"});
+        addFormGroup(cardPanel, "CARBURANT", cbCarburant);
 
+        // 5. BOÎTE
         cbBoite = createModernCombo(new String[]{"MANUELLE", "AUTOMATIQUE"});
-        addFormGroup(cardPanel, "⚙️ BOÎTE", cbBoite);
+        addFormGroup(cardPanel, "BOITE DE VITESSE", cbBoite);
 
+        // 6. KILOMÉTRAGE
         txtKm = createModernTextField("100000");
-        addFormGroup(cardPanel, "📊 KILOMÉTRAGE", txtKm);
+        addFormGroup(cardPanel, "KILOMETRAGE", txtKm);
 
         this.add(cardPanel);
 
@@ -97,7 +111,14 @@ public class FormulairePanel extends AbstractView {
 
     public String getSelectedModele() { return (String) cbModele.getSelectedItem(); }
 
-    public int getSelectedAnnee() { return (Integer) spAnnee.getValue(); }
+    // Correction : Conversion String -> int pour l'année
+    public int getSelectedAnnee() {
+        try {
+            return Integer.parseInt((String) cbAnnee.getSelectedItem());
+        } catch (NumberFormatException e) {
+            return 2020; // Valeur par défaut en cas d'erreur
+        }
+    }
 
     public String getSelectedCarburant() { return (String) cbCarburant.getSelectedItem(); }
 
@@ -114,7 +135,11 @@ public class FormulairePanel extends AbstractView {
         return txtKm;
     }
 
-    public void updateResult(String text) {
+    // Le contrôleur a besoin d'écouter les changements de marque pour mettre à jour les modèles
+    public JComboBox<String> getCbMarque() { return cbMarque; }
+    public JComboBox<String> getCbModele() { return cbModele; }
+
+    public void updateResult(String text, boolean isError) {
         Timer fadeTimer = new Timer(20, null);
         fadeTimer.addActionListener(new ActionListener() {
             float opacity = 0f;
@@ -127,7 +152,6 @@ public class FormulairePanel extends AbstractView {
                     fadeTimer.stop();
                 }
 
-                boolean isError = false;
                 Color baseColor = isError ? ERROR_COLOR : SUCCESS_COLOR;
                 Color fadedColor = new Color(
                         baseColor.getRed(),
@@ -143,21 +167,22 @@ public class FormulairePanel extends AbstractView {
         fadeTimer.start();
     }
 
+    // Surcharge pour compatibilité simple (par défaut pas d'erreur)
+    public void updateResult(String text) {
+        updateResult(text, false);
+    }
+
     public void showLoading() {
         lblResultat.setText("Calcul en cours...");
         lblResultat.setForeground(new Color(200, 200, 200, 200));
     }
-
-    // Le contrôleur a besoin d'écouter les changements de marque pour mettre à jour les modèles
-    public JComboBox<String> getCbMarque() { return cbMarque; }
-    public JComboBox<String> getCbModele() { return cbModele; }
 
     // --- Helpers graphiques améliorés ---
 
     private void addFormGroup(JPanel parent, String title, JComponent input) {
         JPanel p = new JPanel(new BorderLayout(0, 8));
         p.setOpaque(false);
-        JLabel l = new JLabel(title.toUpperCase());
+        JLabel l = new JLabel(title.toUpperCase()); // Conversion majuscule automatique
         l.setFont(FONT_LABEL);
         l.setForeground(LABEL_COLOR);
         p.add(l, BorderLayout.NORTH);
@@ -227,34 +252,6 @@ public class FormulairePanel extends AbstractView {
         txt.setOpaque(false);
 
         return txt;
-    }
-
-    private JSpinner createModernSpinner() {
-        // Créer un modèle de spinner avec format numérique sans virgule
-        SpinnerNumberModel model = new SpinnerNumberModel(2019, 1990, 2025, 1);
-
-        // Créer le spinner
-        JSpinner sp = new JSpinner(model);
-        sp.setFont(FONT_INPUT);
-        sp.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
-        sp.setBackground(new Color(30, 40, 60));
-
-        // Configurer l'éditeur du spinner
-        JComponent editor = sp.getEditor();
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JSpinner.DefaultEditor defaultEditor = (JSpinner.DefaultEditor) editor;
-            JFormattedTextField textField = defaultEditor.getTextField();
-            textField.setBackground(new Color(30, 40, 60));
-            textField.setForeground(TEXT_COLOR);
-            textField.setCaretColor(ACCENT_COLOR);
-            textField.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
-            textField.setFont(FONT_INPUT);
-        }
-
-        return sp;
     }
 
     // --- Classes Internes pour le Design ---
@@ -472,38 +469,5 @@ public class FormulairePanel extends AbstractView {
             }
             return this;
         }
-    }
-
-    // Dans FormulairePanel.java, ajoutez cette méthode à la classe FormulairePanel :
-
-    // Méthode avec un seul paramètre pour la compatibilité avec l'ancien contrôleur
-  
-    // Conservez également la méthode avec deux paramètres si vous en avez besoin ailleurs
-    public void updateResult(String text, boolean isError) {
-        Timer fadeTimer = new Timer(20, null);
-        fadeTimer.addActionListener(new java.awt.event.ActionListener() {
-            float opacity = 0f;
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                opacity += 0.05f;
-                if (opacity >= 1.0f) {
-                    opacity = 1.0f;
-                    fadeTimer.stop();
-                }
-
-                Color baseColor = isError ? ERROR_COLOR : SUCCESS_COLOR;
-                Color fadedColor = new Color(
-                        baseColor.getRed(),
-                        baseColor.getGreen(),
-                        baseColor.getBlue(),
-                        (int)(opacity * 255)
-                );
-
-                lblResultat.setText(text);
-                lblResultat.setForeground(fadedColor);
-            }
-        });
-        fadeTimer.start();
     }
 }
