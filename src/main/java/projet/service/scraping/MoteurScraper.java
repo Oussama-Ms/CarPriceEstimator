@@ -146,7 +146,7 @@ public class MoteurScraper {
     /**
      * Improved detection logic.
      */
-    private static int detectTotalPages(String url) {
+    public static int detectTotalPages(String url) {
         try {
             Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(30000).get();
 
@@ -218,7 +218,7 @@ public class MoteurScraper {
         return "N/A";
     }
 
-    private static String clean(String s) {
+    public static String clean(String s) {
         if (s == null) return "N/A";
         return s.replace(";", "").replace("\n", "").trim();
     }

@@ -260,7 +260,7 @@ public class AvitoScraper {
     /**
      * Cleans strings to avoid breaking the CSV format (removes semicolons and newlines).
      */
-    private static String escapeCsv(String val) {
+    public static String escapeCsv(String val) {
         if (val == null) return "";
         return val.replace(";", " ").replace("\n", " ").trim();
     }
