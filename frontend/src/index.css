@@ -1,0 +1,56 @@
+:root {
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+  --bg-dark: #0a0a0f;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --neon-blue: #00f2ff;
+  --neon-purple: #bd00ff;
+  --neon-red: #ff003c;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(0, 242, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(189, 0, 255, 0.1) 0%, transparent 50%);
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-blue);
+}

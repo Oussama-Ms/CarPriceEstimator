@@ -13,7 +13,12 @@ public class PricePredictionTest {
     // This runs before EACH test to ensure a fresh start
     @BeforeEach
     public void setUp() {
-        predictionService = new PricePredictionService();
+        // Manually inject dependency for unit test
+        projet.service.etl.DataCleaningService cleaner = new projet.service.etl.DataCleaningService();
+        predictionService = new PricePredictionService(cleaner);
+
+        // Manually trigger @PostConstruct
+        predictionService.init();
     }
 
     // --- TEST ML-01: MODEL LOADING ---
@@ -27,7 +32,8 @@ public class PricePredictionTest {
 
         System.out.println("Service Status: " + result);
 
-        // If the model wasn't loaded, it would likely return "Modèle non disponible" or throw an error
+        // If the model wasn't loaded, it would likely return "Modèle non disponible" or
+        // throw an error
         assertNotNull(result, "Result should not be null");
         assertFalse(result.contains("introuvable"), "Model file should be found");
     }
@@ -70,7 +76,8 @@ public class PricePredictionTest {
         String prediction = predictionService.predictPriceRange(v);
         System.out.println("Input: Ferrari | Result: " + prediction);
 
-        // The system should NOT crash. It might give a low estimation (fallback), but it must run.
+        // The system should NOT crash. It might give a low estimation (fallback), but
+        // it must run.
         assertNotNull(prediction, "The system should handle unknown brands gracefully");
     }
 
@@ -80,7 +87,8 @@ public class PricePredictionTest {
         System.out.println("TEST ML-04: Predicting Empty Object");
 
         Vehicule v = new Vehicule(); // Empty object
-        // We set only minimal required fields to avoid NullPointer if your logic expects them
+        // We set only minimal required fields to avoid NullPointer if your logic
+        // expects them
         v.setAnnee(2000);
         v.setKilometrage(0);
 
