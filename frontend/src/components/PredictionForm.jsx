@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { predictPrice } from '../services/api';
 import './PredictionForm.css';
+import { CarLogos } from './BrandLogos';
+
+// Mapping strings to Components
+const BrandComponents = {
+    "DACIA": CarLogos.Dacia,
+    "RENAULT": CarLogos.Renault,
+    "PEUGEOT": CarLogos.Peugeot,
+    "VOLKSWAGEN": CarLogos.Volkswagen,
+    "HYUNDAI": CarLogos.Hyundai,
+    "TOYOTA": CarLogos.Toyota,
+    "BMW": CarLogos.Bmw,
+    "MERCEDES-BENZ": CarLogos.Mercedes
+};
 
 const PredictionForm = () => {
     const [formData, setFormData] = useState({
@@ -48,94 +61,99 @@ const PredictionForm = () => {
             const result = await predictPrice(formData);
             setPrediction(result);
         } catch (err) {
-            setError("Failed to get prediction. Connection error?");
+            setError("Failed to get prediction.");
         } finally {
             setLoading(false);
         }
     };
 
+    const SelectedLogo = BrandComponents[formData.marque];
+
     return (
         <div className="form-container">
-            <div className="hud-panel">
-                <h2 className="hud-header">VEHICLE CONFIGURATOR</h2>
+            <div className="form-card">
+                {/* Dynamic Logo Header */}
+                <div className="form-header-logo">
+                    {SelectedLogo ? (
+                        <SelectedLogo className="selected-brand-icon" />
+                    ) : (
+                        <h2>{formData.marque}</h2>
+                    )}
+                </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                        <div className="form-group">
-                            <label className="hud-label">Select Brand</label>
-                            <select name="marque" value={formData.marque} onChange={handleChange} className="hud-select">
-                                {Object.keys(carData).map(brand => (
-                                    <option key={brand} value={brand}>{brand}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="hud-label">Select Model</label>
-                            <select name="modele" value={formData.modele} onChange={handleChange} className="hud-select">
-                                {availableModels.map(model => (
-                                    <option key={model} value={model}>{model}</option>
-                                ))}
-                            </select>
-                        </div>
+                    <div className="input-group">
+                        <label>BRAND</label>
+                        <select name="marque" value={formData.marque} onChange={handleChange}>
+                            {Object.keys(carData).map(brand => (
+                                <option key={brand} value={brand}>{brand}</option>
+                            ))}
+                        </select>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                        <div className="form-group">
-                            <label className="hud-label">Production Year</label>
+                    <div className="input-group">
+                        <label>MODEL</label>
+                        <select name="modele" value={formData.modele} onChange={handleChange}>
+                            {availableModels.map(model => (
+                                <option key={model} value={model}>{model}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="row-group">
+                        <div className="input-group">
+                            <label>YEAR</label>
                             <input
                                 type="number"
                                 name="annee"
                                 value={formData.annee}
                                 onChange={handleChange}
-                                className="hud-input"
                                 min="1990" max="2025"
                             />
                         </div>
-                        <div className="form-group">
-                            <label className="hud-label">Mileage (KM)</label>
+                        <div className="input-group">
+                            <label>MILEAGE (KM)</label>
                             <input
                                 type="number"
                                 name="kilometrage"
                                 value={formData.kilometrage}
                                 onChange={handleChange}
-                                className="hud-input"
                             />
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div className="form-group">
-                            <label className="hud-label">Fuel Type</label>
-                            <select name="carburant" value={formData.carburant} onChange={handleChange} className="hud-select">
+                    <div className="row-group">
+                        <div className="input-group">
+                            <label>FUEL</label>
+                            <select name="carburant" value={formData.carburant} onChange={handleChange}>
                                 <option value="DIESEL">Diesel</option>
                                 <option value="ESSENCE">Essence</option>
                                 <option value="HYBRIDE">Hybride</option>
                                 <option value="ELECTRIQUE">Electric</option>
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label className="hud-label">Transmission</label>
-                            <select name="boiteVitesse" value={formData.boiteVitesse} onChange={handleChange} className="hud-select">
+                        <div className="input-group">
+                            <label>TRANSMISSION</label>
+                            <select name="boiteVitesse" value={formData.boiteVitesse} onChange={handleChange}>
                                 <option value="MANUELLE">Manual</option>
                                 <option value="AUTOMATIQUE">Automatic</option>
                             </select>
                         </div>
                     </div>
 
-                    <button type="submit" disabled={loading} className="hud-btn">
+                    <button type="submit" disabled={loading} className="submit-btn">
                         {loading ? 'CALCULATING...' : 'ESTIMATE VALUE'}
                     </button>
                 </form>
 
                 {prediction && (
-                    <div className="result-panel">
-                        <span className="result-label">ESTIMATED MARKET VALUE</span>
+                    <div className="result-box">
+                        <span className="result-title">ESTIMATED PRICE</span>
                         <div className="result-value">{prediction}</div>
                     </div>
                 )}
 
-                {error && <div style={{ color: '#ff003c', marginTop: '20px', textAlign: 'center' }}>{error}</div>}
+                {error && <div className="error-msg">{error}</div>}
             </div>
         </div>
     );

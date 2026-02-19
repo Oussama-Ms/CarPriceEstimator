@@ -1,148 +1,157 @@
-/* Prediction Form HUD Styles */
+/* PredictionForm.css - Elegant Dark */
+
 .form-container {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle at center, #14141c 0%, #000000 100%);
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
     padding: 20px;
-    position: relative;
-    overflow: hidden;
 }
 
-.hud-panel {
-    background: rgba(20, 20, 30, 0.8);
+.form-card {
+    background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 40px;
-    border-radius: 4px;
-    /* Sharper corners for HUD look */
+    border-radius: 20px;
     width: 100%;
-    max-width: 600px;
-    position: relative;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
-    clip-path: polygon(0 0,
-            100% 0,
-            100% 85%,
-            95% 100%,
-            0 100%);
-    /* Cut corner effect */
-}
-
-/* Decorative border lines for tech feel */
-.hud-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-}
-
-.hud-header {
-    font-family: 'Orbitron', sans-serif;
-    color: #fff;
-    font-size: 1.8rem;
-    text-align: left;
-    margin-bottom: 30px;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     display: flex;
+    flex-direction: column;
+}
+
+.form-header-logo {
+    height: 120px;
+    /* Reduced from 150px */
+    display: flex;
+    justify-content: center;
     align-items: center;
+    margin-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 15px;
+    padding-bottom: 20px;
 }
 
-.hud-header::before {
-    content: '⚡';
-    margin-right: 15px;
-    color: var(--neon-blue);
-}
-
-.hud-label {
+/* Updated styling to target IMG tags from CdnLogo */
+.selected-brand-icon {
+    width: 100px !important;
+    /* Reduced from 140px */
+    height: 100px !important;
+    /* Reduced from 140px */
+    font-size: 100px;
+    /* For SVG fallbacks */
+    color: #fff;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+    transition: all 0.5s ease;
+    margin: 0 auto;
+    /* Ensure centering */
     display: block;
+}
+
+/* Ensure centering wrapper affects contents */
+.form-header-logo .brand-svg-container,
+.form-header-logo img {
+    margin: 0 auto;
+    display: block;
+}
+
+.form-header-logo img.selected-brand-icon {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.row-group {
+    display: flex;
+    gap: 20px;
+}
+
+label {
     font-family: 'Exo 2', sans-serif;
     font-size: 0.8rem;
-    color: var(--neon-blue);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    color: #888;
     margin-bottom: 8px;
-    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-.hud-input,
-.hud-select {
-    width: 100%;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.4);
+input,
+select {
+    background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-left: 3px solid transparent;
+    padding: 12px;
+    border-radius: 8px;
     color: #fff;
-    font-family: 'Chakra Petch', sans-serif;
-    /* Fallback to sans */
+    font-family: 'Exo 2', sans-serif;
     font-size: 1rem;
-    transition: all 0.3s;
-    border-radius: 2px;
-}
-
-.hud-input:focus,
-.hud-select:focus {
     outline: none;
-    background: rgba(0, 242, 255, 0.05);
-    border-color: var(--neon-blue);
-    border-left-color: var(--neon-blue);
-    box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+    transition: border-color 0.3s;
 }
 
-.hud-btn {
+input:focus,
+select:focus {
+    border-color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.submit-btn {
     width: 100%;
-    margin-top: 30px;
     padding: 18px;
-    background: linear-gradient(45deg, var(--neon-blue), #283c86);
+    margin-top: 20px;
+    background: #fff;
+    color: #000;
     border: none;
-    color: #fff;
+    border-radius: 50px;
     font-family: 'Orbitron', sans-serif;
-    font-weight: 900;
-    font-size: 1.2rem;
+    font-weight: 700;
+    font-size: 1.1rem;
     letter-spacing: 2px;
     text-transform: uppercase;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-    transition: all 0.3s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.hud-btn:hover {
-    transform: scale(1.02);
-    box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
 }
 
-.hud-btn:disabled {
-    background: #333;
-    cursor: not-allowed;
-    transform: none;
+.submit-btn:active {
+    transform: translateY(1px);
 }
 
-.result-panel {
+.result-box {
     margin-top: 30px;
-    background: rgba(0, 242, 255, 0.05);
-    /* Blue tinit */
-    border: 1px solid var(--neon-blue);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     padding: 20px;
     text-align: center;
-    animation: pulse-glow 2s infinite;
 }
 
-.result-label {
+.result-title {
+    display: block;
     font-family: 'Exo 2', sans-serif;
     font-size: 0.9rem;
-    color: #aaa;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    color: #bbb;
+    margin-bottom: 5px;
 }
 
 .result-value {
     font-family: 'Orbitron', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 900;
+    font-size: 2rem;
     color: #fff;
-    text-shadow: 0 0 20px var(--neon-blue);
-    margin-top: 10px;
+    font-weight: bold;
+}
+
+.error-msg {
+    color: #ff4d4d;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
 }
