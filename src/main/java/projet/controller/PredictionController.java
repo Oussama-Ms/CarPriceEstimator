@@ -7,7 +7,8 @@ import projet.service.ml.PricePredictionService;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*") // Allow requests from React frontend
+@CrossOrigin(origins = "${frontend.url:http://localhost:5173}") // Allow requests from React frontend, configurable for
+                                                                // hosting
 public class PredictionController {
 
     private final PricePredictionService predictionService;

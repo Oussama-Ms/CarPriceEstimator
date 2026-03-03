@@ -38,7 +38,6 @@ public class PricePredictionService {
             }
         } catch (Exception e) {
             System.err.println("❌ Erreur chargement modèle : " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

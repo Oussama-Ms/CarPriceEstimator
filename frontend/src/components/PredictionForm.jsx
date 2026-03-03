@@ -15,6 +15,19 @@ const BrandComponents = {
     "MERCEDES-BENZ": CarLogos.Mercedes
 };
 
+// Static data moved outside the component to prevent re-allocation on every render
+const carData = {
+    "DACIA": ["Logan", "Sandero", "Duster", "Dokker", "Lodgy"],
+    "RENAULT": ["Clio", "Megane", "Kangoo"],
+    "PEUGEOT": ["206", "208", "Partner"],
+    "VOLKSWAGEN": ["T-Roc", "Tiguan", "Touareg"],
+    "HYUNDAI": ["i10", "Accent", "Tucson"],
+    "TOYOTA": ["Yaris", "Corolla", "RAV4"],
+    "MERCEDES-BENZ": ["Classe A", "Classe C", "Classe E"],
+    "BMW": ["Série 1", "Série 3", "Série 5"]
+};
+
+
 const PredictionForm = () => {
     const [formData, setFormData] = useState({
         marque: 'DACIA',
@@ -29,17 +42,6 @@ const PredictionForm = () => {
     const [prediction, setPrediction] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    const carData = {
-        "DACIA": ["Logan", "Sandero", "Duster", "Dokker", "Lodgy"],
-        "RENAULT": ["Clio", "Megane", "Kangoo"],
-        "PEUGEOT": ["206", "208", "Partner"],
-        "VOLKSWAGEN": ["T-Roc", "Tiguan", "Touareg"],
-        "HYUNDAI": ["i10", "Accent", "Tucson"],
-        "TOYOTA": ["Yaris", "Corolla", "RAV4"],
-        "MERCEDES-BENZ": ["Classe A", "Classe C", "Classe E"],
-        "BMW": ["Série 1", "Série 3", "Série 5"]
-    };
 
     useEffect(() => {
         const models = carData[formData.marque] || [];
