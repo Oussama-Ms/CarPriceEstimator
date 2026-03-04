@@ -66,7 +66,7 @@ const LandingPage = () => {
                         <a href="https://www.linkedin.com/in/oussama-ms" target="_blank" rel="noopener noreferrer" className="credits-link">
                             M'SAAD OUSSAMA
                         </a>
-                        <a href="https://www.linkedin.com/in/" target="_blank" rel="noopener noreferrer" className="credits-link">
+                        <a href="https://www.linkedin.com/in/youssef-sadiqui-dev" target="_blank" rel="noopener noreferrer" className="credits-link">
                             SADIQUI YOUSSEF
                         </a>
                     </div>
@@ -96,10 +96,10 @@ const LandingPage = () => {
                     <div className="data-sources">
                         <span className="data-source-label">Powered By</span>
                         <div className="source-link-wrapper">
-                            <AvitoLogo className="data-source-logo" />
+                            <a href="https://www.avito.ma" target="_blank" rel="noopener noreferrer"><AvitoLogo className="data-source-logo" /></a>
                         </div>
                         <div className="source-link-wrapper">
-                            <MoteurLogo className="data-source-logo" />
+                            <a href="https://www.moteur.ma" target="_blank" rel="noopener noreferrer"><MoteurLogo className="data-source-logo" /></a>
                         </div>
                     </div>
                 </div>
