@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-
+// By using a relative path, the browser talks to Vercel (no CORS issues!). 
+// Vercel's server then secretly forwards it to Hugging Face.
 const api = axios.create({
-    baseURL: API_URL, // Use env var for hosting, fallback to proxy for local
+    baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -11,7 +11,7 @@ const api = axios.create({
 
 export const predictPrice = async (vehiculeData) => {
     try {
-        const response = await axios.post(`${API_URL}/api/predict`, vehiculeData);
+        const response = await api.post('/predict', vehiculeData);
         return response.data;
     } catch (error) {
         throw error.response ? error.response.data : error.message;
