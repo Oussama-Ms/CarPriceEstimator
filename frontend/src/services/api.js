@@ -11,7 +11,7 @@ const api = axios.create({
 
 export const predictPrice = async (vehiculeData) => {
     try {
-        const response = await api.post('/predict', vehiculeData);
+        const response = await axios.post(`${API_URL}/predict`, vehiculeData);
         return response.data;
     } catch (error) {
         throw error.response ? error.response.data : error.message;
