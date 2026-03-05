@@ -19,6 +19,7 @@ public class PredictionController {
 
     @PostMapping("/predict")
     public ResponseEntity<String> predictPrice(@RequestBody Vehicule vehicule) {
+        System.out.println("Received request for: " + vehicule.getMarque() + " " + vehicule.getModele());
         try {
             String prediction = predictionService.predictPriceRange(vehicule);
             return ResponseEntity.ok(prediction);
